@@ -10,9 +10,6 @@ import android.widget.TextView;
 
 import java.util.List;
 
-/**
- * Created by yonatan on 3/12/2015.
- */
 public class RedBlueAdapter extends ArrayAdapter<String>{
 
     private int textViewResourceId;
@@ -43,17 +40,6 @@ public class RedBlueAdapter extends ArrayAdapter<String>{
             }
             text.setText(items.get(position));
         }
-
-//        if(items.get(position) != null )
-//        {
-//            text.setTextColor(Color.WHITE);
-//            text.setText(items.get(position));
-//            text.setBackgroundColor(Color.RED);
-//            int color = Color.argb( 200, 255, 64, 64 );
-//            text.setBackgroundColor( color );
-//
-//        }
-
         return mView;
     }
 
