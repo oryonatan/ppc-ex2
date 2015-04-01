@@ -51,19 +51,18 @@ public class AddNewTodoItemActivity extends Activity {
 
 
     /**
-     * Gets the date as long from the a picker
+     * Gets the date as java.lang.Date from the a picker
      * @param datePicker datePicker
-     * @return long
+     * @return java.lang.Date
      */
-    public static long getDateFromDatePicket(DatePicker datePicker){
+    public static Date getDateFromDatePicket(DatePicker datePicker){
         int day = datePicker.getDayOfMonth();
         int month = datePicker.getMonth();
         int year =  datePicker.getYear();
 
         Calendar calendar = Calendar.getInstance();
         calendar.set(year, month, day);
-        Date enteredDate =  calendar.getTime();
-        return  enteredDate.getTime();
+        return calendar.getTime();
     }
 
     @Override

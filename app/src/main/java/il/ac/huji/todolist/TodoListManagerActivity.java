@@ -120,7 +120,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
                 if (data.getBooleanExtra("OK",false)){
                     addNewItemToListView(
                             data.getStringExtra("title"),
-                            new Date(data.getLongExtra("dueDate",-1)));
+                            (Date)data.getSerializableExtra("dueDate"));
                     }
                 break;
         }
