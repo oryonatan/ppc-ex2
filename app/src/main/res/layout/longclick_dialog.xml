@@ -7,7 +7,15 @@
     <Button
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Delete"
+        android:text="Delete Item"
         android:id="@+id/menuItemDelete"
         android:layout_gravity="center_horizontal" />
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Call"
+        android:id="@+id/menuItemCall"
+        android:layout_gravity="center_horizontal"
+        android:visibility="gone"/>
 </LinearLayout>

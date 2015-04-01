@@ -13,11 +13,6 @@
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true">
 
-        <EditText
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/edtNewItem" />
-
         <ListView
             android:layout_width="match_parent"
             android:layout_height="fill_parent"

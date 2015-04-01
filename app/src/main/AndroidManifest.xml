@@ -11,10 +11,20 @@
             android:name=".TodoListManagerActivity"
             android:label="@string/app_name" >
             <intent-filter>
+                <action android:name="android.intent.action.DIAL"/>
+                <category
+                    android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="tel"/>
+            </intent-filter>
+            <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity
+            android:name=".AddNewTodoItemActivity"
+            android:label="@string/title_activity_add_new_todo_item"
+            android:theme="@android:style/Theme.Dialog">
         </activity>
     </application>
 
