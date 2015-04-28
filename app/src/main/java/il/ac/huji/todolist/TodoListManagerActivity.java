@@ -1,7 +1,11 @@
 package il.ac.huji.todolist;
 
 import android.app.Dialog;
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.database.sqlite.SQLiteCursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
@@ -19,18 +23,31 @@ import java.util.Date;
 
 public class TodoListManagerActivity extends ActionBarActivity {
     private final int NEW_ITEM_ADDED = 1;
-
+    private DBHelper dbHelper;
     private TodoItemAdapter todoAdapter;
     //The list is a pair if titles and dates.
-    private Pair<ArrayList<String>,ArrayList<Date>> itemsToDo =
-            new Pair<>(new ArrayList<String>(),new ArrayList<Date>());
+    private Pair<ArrayList<String>, ArrayList<Date>> itemsToDo =
+            new Pair<>(new ArrayList<String>(), new ArrayList<Date>());
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //Init and read from DB
+        dbHelper = new DBHelper(this);
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        Cursor cursor = db.query("todo", new String[]{"title", "due"}, null, null, null, null, null);
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+                itemsToDo.first.add(cursor.getString(0));
+                itemsToDo.second.add(new Date(cursor.getLong(1)));
+            cursor.moveToNext();
+        }
+        // DB read complete
         setContentView(R.layout.activity_todo_list_manager);
-        ListView lstTodo = (ListView)findViewById(R.id.lstTodoItems);
-        todoAdapter = new TodoItemAdapter(this,R.layout.todo_list, itemsToDo);
+        ListView lstTodo = (ListView) findViewById(R.id.lstTodoItems);
+        todoAdapter = new TodoItemAdapter(this, R.layout.todo_list, itemsToDo);
         lstTodo.setAdapter(todoAdapter);
+
 
         lstTodo.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -43,7 +60,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
 
     public void showLongClickDialog(final int position) {
         final Dialog dialog = new Dialog(this);
-        String title=  itemsToDo.first.get(position);
+        String title = itemsToDo.first.get(position);
         dialog.setTitle(title);
         LayoutInflater inflater = this.getLayoutInflater();
         View bodyView = inflater.inflate(R.layout.longclick_dialog, null);
@@ -55,19 +72,20 @@ public class TodoListManagerActivity extends ActionBarActivity {
 
     /**
      * Check if an item starts with "Call " and if it does - call the number that appears next to it
-     * @param title  title
+     *
+     * @param title    title
      * @param bodyView view containing the title
      */
     private void addCallButton(String title, View bodyView) {
         View callButton = bodyView.findViewById(R.id.menuItemCall);
-        final String phoneNumber  = title.substring("Call ".length());
-        if (title.startsWith("Call ")){
+        if (title.startsWith("Call ")) {
+            final String phoneNumber = title.substring("Call ".length());
             callButton.setVisibility(View.VISIBLE);
-            callButton.setOnClickListener( new View.OnClickListener() {
+            callButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent dial = new Intent(Intent.ACTION_DIAL,
-                            Uri.parse("tel:"+phoneNumber));
+                            Uri.parse("tel:" + phoneNumber));
                     startActivity(dial);
                 }
             });
@@ -76,17 +94,24 @@ public class TodoListManagerActivity extends ActionBarActivity {
 
     /**
      * Initializes the delete button
+     *
      * @param position position in the list of the delete button
-     * @param dialog the dialog with the delete button
+     * @param dialog   the dialog with the delete button
      * @param bodyView the bodyView with the delete button
      */
     private void registerDeletButton(final int position, final Dialog dialog, View bodyView) {
         bodyView.findViewById(R.id.menuItemDelete).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                dbHelper.getWritableDatabase().delete
+                        ("todo",
+                                "title='"+ itemsToDo.first.get(position)+
+                                "' and due='" + ((Long) itemsToDo.second.get(position).getTime()).toString()+"'",
+                               null);
                 itemsToDo.first.remove(position);
                 itemsToDo.second.remove(position);
                 todoAdapter.notifyDataSetChanged();
+
                 dialog.hide();
             }
         });
@@ -106,7 +131,7 @@ public class TodoListManagerActivity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.menuItemAdd) {
-            Intent itemAddIntent = new Intent(this,AddNewTodoItemActivity.class);
+            Intent itemAddIntent = new Intent(this, AddNewTodoItemActivity.class);
             startActivityForResult(itemAddIntent, NEW_ITEM_ADDED);
         }
         return super.onOptionsItemSelected(item);
@@ -115,25 +140,31 @@ public class TodoListManagerActivity extends ActionBarActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (resultCode){
+        switch (resultCode) {
             case NEW_ITEM_ADDED:
-                if (data.getBooleanExtra("OK",false)){
+                if (data.getBooleanExtra("OK", false)) {
                     addNewItemToListView(
                             data.getStringExtra("title"),
-                            (Date)data.getSerializableExtra("dueDate"));
-                    }
+                            (Date) data.getSerializableExtra("dueDate"));
+                }
                 break;
         }
     }
 
     /**
      * Adds a new item to a list view
-     * @param title title
-     * @param taskDate taskDate
+     *
+     * @param title the title
+     * @param taskDate the due date
      */
-    public void addNewItemToListView(String title, Date taskDate){
+    public void addNewItemToListView(String title, Date taskDate) {
         itemsToDo.first.add(title);
         itemsToDo.second.add(taskDate);
+        ContentValues task = new ContentValues();
+        task.put("title", title);
+        task.put("due", taskDate.getTime());
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.insert("todo", null, task);
         todoAdapter.notifyDataSetChanged();
     }
 }

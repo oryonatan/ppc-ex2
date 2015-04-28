@@ -27,11 +27,11 @@ public class AddNewTodoItemActivity extends Activity {
         btnOK.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                String title = ((TextView) findViewById(R.id.edtNewItem)).getText().toString();
+                Date dueDate = getDateFromDatePicket((DatePicker) findViewById(R.id.datePicker));
                 result.putExtra("OK", true)
-                        .putExtra("title",
-                                ((TextView) findViewById(R.id.edtNewItem)).getText().toString())
-                        .putExtra("dueDate",
-                                getDateFromDatePicket((DatePicker) findViewById(R.id.datePicker)));
+                        .putExtra("title",title)
+                        .putExtra("dueDate",dueDate);
                 setResult(NEW_ITEM_ADDED, result);
                 finish();
             }
